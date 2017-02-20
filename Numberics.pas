@@ -6,9 +6,9 @@ interface
 type
  NumFP=array of longint;
  pint=^longint;
- BigInteger=record
-  n,sign:longint;
-  a:NumFP
+ BigInteger=object
+  private n,sign:longint;
+  private a:NumFP
  end;
 const
  p:int64=998244353;
@@ -200,30 +200,16 @@ operator >=(const a,b:BigInteger)c:boolean;begin c:=not(a<b) end;
   n,i,L:longint;
  begin
   n:=1; L:=0; while n<=m do begin n:=n<<1; inc(L) end;
-  if high(eps)<0 then
+  setlength(eps,n);
+  setlength(eps_inv,n);
+  base:=pw(g,(p-1)div n);
+  base_inv:=pw(base,p-2);
+  eps[0]:=1;
+  eps_inv[0]:=1;
+  for i:=1 to n-1 do
   begin
-   setlength(eps,n);
-   setlength(eps_inv,n);
-   base:=pw(g,(p-1)div n);
-   base_inv:=pw(base,p-2);
-   eps[0]:=1;
-   eps_inv[0]:=1;
-   for i:=1 to n-1 do
-   begin
-    eps[i]:=int64(eps[i-1])*base mod p;
-    eps_inv[i]:=int64(eps_inv[i-1])*base_inv mod p
-   end
-  end
-  else
-  begin
-   i:=high(eps)+1;
-   setlength(eps,n);
-   setlength(eps_inv,n);
-   for i:=i to n-1 do
-   begin
-    eps[i]:=int64(eps[i-1])*base mod p;
-    eps_inv[i]:=int64(eps_inv[i-1])*base_inv mod p
-   end
+   eps[i]:=int64(eps[i-1])*base mod p;
+   eps_inv[i]:=int64(eps_inv[i-1])*base_inv mod p
   end;
   setlength(R,n);
   for i:=0 to n-1 do R[i]:=(R[i>>1]>>1)or((i and 1)<<(L-1));
